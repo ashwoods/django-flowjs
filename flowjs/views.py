@@ -1,15 +1,24 @@
 from django import http
 from django import forms
+from django.dispatch.dispatcher import receiver
 from django.views.generic.base import View
 from django.shortcuts import get_object_or_404
+
+try:
+    from rest_framework.views import APIView
+except ImportError:
+    # fallback to view
+    APIView = View
+
 from models import FlowFile, FlowFileChunk
+from signals import file_upload_failed
 
 
 class FlowFileForm(forms.Form):
     file = forms.FileField()
 
 
-class UploadView(View):
+class UploadMixin(object):
     def dispatch(self, request, *args, **kwargs):
         # get flow variables
         self.flowChunkNumber = int(request.REQUEST.get('flowChunkNumber'))
@@ -23,7 +32,7 @@ class UploadView(View):
 
         # identifier is a combination of session key and flow identifier
         self.identifier = ('%s-%s' % (request.session.session_key, self.flowIdentifier))[:200]
-        return super(UploadView, self).dispatch(request, *args, **kwargs)
+        return super(UploadMixin, self).dispatch(request, *args, **kwargs)
 
     def get(self, *args, **kwargs):
         """
@@ -48,6 +57,7 @@ class UploadView(View):
         # validate the file form
         form = FlowFileForm(request.POST, request.FILES)
         if not form.is_valid():
+            file_upload_failed.send(flow_file)
             return http.HttpResponseBadRequest(form.errors)
 
         # avoiding duplicated chucks
@@ -62,6 +72,14 @@ class UploadView(View):
         return http.HttpResponse(flow_file.identifier)
 
 
+class UploadView(UploadMixin, View):
+    pass
+
+
+class UploadViewSet(UploadMixin, APIView):
+    pass
+
+
 class CheckStateView(View):
     def get(self, request, *args, **kwargs):
         """
@@ -70,3 +88,25 @@ class CheckStateView(View):
         """
         flow = get_object_or_404(FlowFile, identifier=request.GET.get('identifier', ''))
         return http.HttpResponse(flow.state)
+
+
+# Use in your views
+# @receiver(file_is_ready, sender=FlowFile)
+# def flow_file_ready(sender, instance, **kwargs):
+#     """ File ready Function
+#     """
+#     pass
+#
+#
+# @receiver(file_joining_failed, sender=FlowFile)
+# def flow_file_joining_failed(sender, instance, **kwargs):
+#     """ Chunk joining Failed -> delete whole file
+#     """
+#     instance.delete()
+#
+#
+# @receiver(file_upload_failed, sender=FlowFile)
+# def flow_file_upload_failed(sender, instance, **kwargs):
+#     """ Chunk joining Failed -> delete whole file
+#     """
+#     instance.delete()
