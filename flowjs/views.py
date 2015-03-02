@@ -1,5 +1,6 @@
 from django import http
 from django import forms
+from django.dispatch.dispatcher import receiver
 from django.views.generic.base import View
 from django.shortcuts import get_object_or_404
 
