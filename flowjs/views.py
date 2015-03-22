@@ -73,7 +73,7 @@ class UploadMixin(object):
 
 
 class UploadView(UploadMixin, View):
-    def get_variables(self):
+    def get_variables(self, request):
         # get flow variables
         self.flowChunkNumber = int(request.REQUEST.get('flowChunkNumber'))
         self.flowChunckSize = int(request.REQUEST.get('flowChunkSize'))
@@ -86,7 +86,7 @@ class UploadView(UploadMixin, View):
 
 
 class UploadViewSet(UploadMixin, APIView):
-    def get_variables(self):
+    def get_variables(self, request):
         # get flow variables
         self.flowChunkNumber = int(request.DATA.get('flowChunkNumber'))
         self.flowChunckSize = int(request.DATA.get('flowChunkSize'))
