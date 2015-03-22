@@ -88,14 +88,14 @@ class UploadView(UploadMixin, View):
 class UploadViewSet(UploadMixin, APIView):
     def get_variables(self, request):
         # get flow variables
-        self.flowChunkNumber = int(request.DATA.get('flowChunkNumber'))
-        self.flowChunckSize = int(request.DATA.get('flowChunkSize'))
-        self.flowCurrentChunkSize = int(request.DATA.get('flowCurrentChunkSize'))
-        self.flowTotalSize = int(request.DATA.get('flowTotalSize'))
-        self.flowIdentifier = request.DATA.get('flowIdentifier')
-        self.flowFilename = request.DATA.get('flowFilename')
-        self.flowRelativePath = request.DATA.get('flowRelativePath')
-        self.flowTotalChunks = int(request.DATA.get('flowTotalChunks'))
+        self.flowChunkNumber = int(request.data.get('flowChunkNumber'))
+        self.flowChunckSize = int(request.data.get('flowChunkSize'))
+        self.flowCurrentChunkSize = int(request.data.get('flowCurrentChunkSize'))
+        self.flowTotalSize = int(request.data.get('flowTotalSize'))
+        self.flowIdentifier = request.data.get('flowIdentifier')
+        self.flowFilename = request.data.get('flowFilename')
+        self.flowRelativePath = request.data.get('flowRelativePath')
+        self.flowTotalChunks = int(request.data.get('flowTotalChunks'))
 
 
 class CheckStateView(View):
