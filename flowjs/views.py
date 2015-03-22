@@ -5,7 +5,7 @@ from django.views.generic.base import View
 from django.shortcuts import get_object_or_404
 
 try:
-    from rest_framework.views import APIView
+    from rest_framework.viewsets import GenericViewSet
 except ImportError:
     # fallback to view
     APIView = View
@@ -23,13 +23,6 @@ class UploadMixin(object):
     def get_identifier(self, request):
         """ identifier for chunk upload """
         return '%s-%s'.format((request.session.session_key, self.flowIdentifier))[:200]
-
-    def dispatch(self, request, *args, **kwargs):
-        self.get_variables(request)
-
-        # identifier is a combination of session key and flow identifier
-        self.identifier = self.get_identifier(request)
-        return super(UploadMixin, self).dispatch(request, *args, **kwargs)
 
     def get(self, *args, **kwargs):
         """
@@ -73,6 +66,13 @@ class UploadMixin(object):
 
 
 class UploadView(UploadMixin, View):
+    def dispatch(self, request, *args, **kwargs):
+        self.get_variables(request)
+
+        # identifier is a combination of session key and flow identifier
+        self.identifier = self.get_identifier(request)
+        return super(UploadMixin, self).dispatch(request, *args, **kwargs)
+
     def get_variables(self, request):
         # get flow variables
         self.flowChunkNumber = int(request.REQUEST.get('flowChunkNumber'))
@@ -85,7 +85,7 @@ class UploadView(UploadMixin, View):
         self.flowTotalChunks = int(request.REQUEST.get('flowTotalChunks'))
 
 
-class UploadViewSet(UploadMixin, APIView):
+class UploadViewSet(UploadMixin, GenericViewSet):
     def get_variables(self, request):
         # get flow variables
         self.flowChunkNumber = int(request.data.get('flowChunkNumber'))
