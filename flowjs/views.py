@@ -18,21 +18,14 @@ class FlowFileForm(forms.Form):
     file = forms.FileField()
 
 
+
 class UploadMixin(object):
     def get_identifier(self, request):
         """ identifier for chunk upload """
         return '%s-%s'.format((request.session.session_key, self.flowIdentifier))[:200]
 
     def dispatch(self, request, *args, **kwargs):
-        # get flow variables
-        self.flowChunkNumber = int(request.REQUEST.get('flowChunkNumber'))
-        self.flowChunckSize = int(request.REQUEST.get('flowChunkSize'))
-        self.flowCurrentChunkSize = int(request.REQUEST.get('flowCurrentChunkSize'))
-        self.flowTotalSize = int(request.REQUEST.get('flowTotalSize'))
-        self.flowIdentifier = request.REQUEST.get('flowIdentifier')
-        self.flowFilename = request.REQUEST.get('flowFilename')
-        self.flowRelativePath = request.REQUEST.get('flowRelativePath')
-        self.flowTotalChunks = int(request.REQUEST.get('flowTotalChunks'))
+        self.get_variables()
 
         # identifier is a combination of session key and flow identifier
         self.identifier = self.get_identifier(request)
@@ -80,11 +73,29 @@ class UploadMixin(object):
 
 
 class UploadView(UploadMixin, View):
-    pass
+    def get_variables(self):
+        # get flow variables
+        self.flowChunkNumber = int(request.REQUEST.get('flowChunkNumber'))
+        self.flowChunckSize = int(request.REQUEST.get('flowChunkSize'))
+        self.flowCurrentChunkSize = int(request.REQUEST.get('flowCurrentChunkSize'))
+        self.flowTotalSize = int(request.REQUEST.get('flowTotalSize'))
+        self.flowIdentifier = request.REQUEST.get('flowIdentifier')
+        self.flowFilename = request.REQUEST.get('flowFilename')
+        self.flowRelativePath = request.REQUEST.get('flowRelativePath')
+        self.flowTotalChunks = int(request.REQUEST.get('flowTotalChunks'))
 
 
 class UploadViewSet(UploadMixin, APIView):
-    pass
+    def get_variables(self):
+        # get flow variables
+        self.flowChunkNumber = int(request.DATA.get('flowChunkNumber'))
+        self.flowChunckSize = int(request.DATA.get('flowChunkSize'))
+        self.flowCurrentChunkSize = int(request.DATA.get('flowCurrentChunkSize'))
+        self.flowTotalSize = int(request.DATA.get('flowTotalSize'))
+        self.flowIdentifier = request.DATA.get('flowIdentifier')
+        self.flowFilename = request.DATA.get('flowFilename')
+        self.flowRelativePath = request.DATA.get('flowRelativePath')
+        self.flowTotalChunks = int(request.DATA.get('flowTotalChunks'))
 
 
 class CheckStateView(View):
