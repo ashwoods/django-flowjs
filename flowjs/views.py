@@ -8,7 +8,7 @@ try:
     from rest_framework.viewsets import GenericViewSet
 except ImportError:
     # fallback to view
-    APIView = View
+    GenericViewSet = View
 
 from models import FlowFile, FlowFileChunk
 from signals import file_upload_failed
@@ -23,6 +23,12 @@ class UploadMixin(object):
     def get_identifier(self, request):
         """ identifier for chunk upload """
         return '%s-%s'.format((request.session.session_key, self.flowIdentifier))[:200]
+
+    def init_upload_mixin(self, request):
+        self.get_variables(request)
+
+        # identifier is a combination of session key and flow identifier
+        self.identifier = self.get_identifier(request)
 
     def get(self, *args, **kwargs):
         """
@@ -67,10 +73,7 @@ class UploadMixin(object):
 
 class UploadView(UploadMixin, View):
     def dispatch(self, request, *args, **kwargs):
-        self.get_variables(request)
-
-        # identifier is a combination of session key and flow identifier
-        self.identifier = self.get_identifier(request)
+        self.init_upload_mixin(request)
         return super(UploadMixin, self).dispatch(request, *args, **kwargs)
 
     def get_variables(self, request):
@@ -86,6 +89,10 @@ class UploadView(UploadMixin, View):
 
 
 class UploadViewSet(UploadMixin, GenericViewSet):
+    def post(self, request, *args, **kwargs):
+        self.init_upload_mixin(request)
+        return super(UploadViewSet, self).post(request, *args, **kwargs)
+
     def get_variables(self, request):
         # get flow variables
         self.flowChunkNumber = int(request.data.get('flowChunkNumber'))
