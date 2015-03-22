@@ -25,7 +25,7 @@ class UploadMixin(object):
         return '%s-%s'.format((request.session.session_key, self.flowIdentifier))[:200]
 
     def dispatch(self, request, *args, **kwargs):
-        self.get_variables()
+        self.get_variables(request)
 
         # identifier is a combination of session key and flow identifier
         self.identifier = self.get_identifier(request)
