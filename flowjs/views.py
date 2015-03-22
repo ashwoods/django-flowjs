@@ -19,7 +19,7 @@ class FlowFileForm(forms.Form):
 
 
 class UploadMixin(object):
-    def get_identifier(self):
+    def get_identifier(self, request):
         """ identifier for chunk upload """
         return '%s-%s'.format((request.session.session_key, self.flowIdentifier))[:200]
 
@@ -35,7 +35,7 @@ class UploadMixin(object):
         self.flowTotalChunks = int(request.REQUEST.get('flowTotalChunks'))
 
         # identifier is a combination of session key and flow identifier
-        self.identifier = self.get_identifier()
+        self.identifier = self.get_identifier(request)
         return super(UploadMixin, self).dispatch(request, *args, **kwargs)
 
     def get(self, *args, **kwargs):
