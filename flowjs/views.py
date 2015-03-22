@@ -19,6 +19,10 @@ class FlowFileForm(forms.Form):
 
 
 class UploadMixin(object):
+    def get_identifier(self):
+        """ identifier for chunk upload """
+        return '%s-%s'.format((request.session.session_key, self.flowIdentifier))[:200]
+
     def dispatch(self, request, *args, **kwargs):
         # get flow variables
         self.flowChunkNumber = int(request.REQUEST.get('flowChunkNumber'))
@@ -31,7 +35,7 @@ class UploadMixin(object):
         self.flowTotalChunks = int(request.REQUEST.get('flowTotalChunks'))
 
         # identifier is a combination of session key and flow identifier
-        self.identifier = ('%s-%s' % (request.session.session_key, self.flowIdentifier))[:200]
+        self.identifier = self.get_identifier()
         return super(UploadMixin, self).dispatch(request, *args, **kwargs)
 
     def get(self, *args, **kwargs):
@@ -40,7 +44,7 @@ class UploadMixin(object):
         Return 200 if exist.
         """
         get_object_or_404(FlowFileChunk, number=self.flowChunkNumber, parent__identifier=self.identifier)
-        return http.HttpResponse(self.identifier)
+        return self.return_response(self.identifier)
 
     def post(self, request, *args, **kwargs):
         """
@@ -58,7 +62,7 @@ class UploadMixin(object):
         form = FlowFileForm(request.POST, request.FILES)
         if not form.is_valid():
             file_upload_failed.send(flow_file)
-            return http.HttpResponseBadRequest(form.errors)
+            return self.return_response(form.errors, error=True)
 
         # avoiding duplicated chucks
         chunk, created = flow_file.chunks.get_or_create(number=self.flowChunkNumber, defaults={
@@ -69,7 +73,10 @@ class UploadMixin(object):
             chunk.size = form.size
             chunk.save()
 
-        return http.HttpResponse(flow_file.identifier)
+        return self.return_response(flow_file.identifier)
+
+    def return_response(self, msg, error=False):
+        return http.HttpResponse(msg)
 
 
 class UploadView(UploadMixin, View):
