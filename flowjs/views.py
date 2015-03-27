@@ -42,30 +42,34 @@ class UploadMixin(object):
         """
         Upload the file by chunks
         """
+        self.create_flow_file_db_entry()
+        self.handle_chunk(request)
+        return self.return_response(self.flow_file.identifier)
 
+    def create_flow_file_db_entry(self):
         # get file or create if doesn't exist the identifier
-        flow_file, created = FlowFile.objects.get_or_create(identifier=self.identifier, defaults={
+        self.flow_file, self.flow_file_created = FlowFile.objects.get_or_create(identifier=self.identifier, defaults={
             'original_filename': self.flowFilename,
             'total_size': self.flowTotalSize,
             'total_chunks': self.flowTotalChunks,
         })
 
+    def handle_chunk(self, request):
         # validate the file form
         form = FlowFileForm(request.POST, request.FILES)
         if not form.is_valid():
-            file_upload_failed.send(flow_file)
+            file_upload_failed.send(self.flow_file)
             return self.return_response(form.errors, error=True)
 
         # avoiding duplicated chucks
-        chunk, created = flow_file.chunks.get_or_create(number=self.flowChunkNumber, defaults={
+        chunk, created = self.flow_file.chunks.get_or_create(number=self.flowChunkNumber, defaults={
             'file': form.cleaned_data['file'],
         })
+
         if not created:
             chunk.file = form.file
             chunk.size = form.size
             chunk.save()
-
-        return self.return_response(flow_file.identifier)
 
     def return_response(self, msg, error=False):
         return http.HttpResponse(msg)
