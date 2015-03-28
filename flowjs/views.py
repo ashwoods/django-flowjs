@@ -46,9 +46,15 @@ class UploadMixin(object):
         self.handle_chunk(request)
         return self.return_response(self.flow_file.identifier)
 
-    def create_flow_file_db_entry(self):
+    def create_flow_file_db_entry(self, this_identifier=None):
+
+        # use given identifier or temporary
+        identifier = self.identifier
+        if this_identifier:
+            identifier = this_identifier
+
         # get file or create if doesn't exist the identifier
-        self.flow_file, self.flow_file_created = FlowFile.objects.get_or_create(identifier=self.identifier, defaults={
+        self.flow_file, self.flow_file_created = FlowFile.objects.get_or_create(identifier=identifier, defaults={
             'original_filename': self.flowFilename,
             'total_size': self.flowTotalSize,
             'total_chunks': self.flowTotalChunks,
