@@ -17,3 +17,6 @@ FLOWJS_JOIN_CHUNKS_IN_BACKGROUND = getattr(settings, "FLOWJS_JOIN_CHUNKS_IN_BACK
 
 # Check if FLOWJS should use Celery
 FLOWJS_WITH_CELERY = 'celery' in settings.INSTALLED_APPS
+
+# always send signals e.g. even with foreground processing
+FLOWJS_ALWAYS_SEND_SIGNALS = getattr(settings, "FLOWJS_ALWAYS_SEND_SIGNALS", False)

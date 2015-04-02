@@ -6,7 +6,7 @@ from django.dispatch.dispatcher import receiver
 from django.core.files.storage import default_storage
 from django.conf import settings
 from settings import FLOWJS_PATH, FLOWJS_REMOVE_FILES_ON_DELETE, \
-    FLOWJS_AUTO_DELETE_CHUNKS, FLOWJS_JOIN_CHUNKS_IN_BACKGROUND, FLOWJS_WITH_CELERY
+    FLOWJS_AUTO_DELETE_CHUNKS, FLOWJS_JOIN_CHUNKS_IN_BACKGROUND, FLOWJS_WITH_CELERY, FLOWJS_ALWAYS_SEND_SIGNALS
 from utils import chunk_upload_to, guess_filetype
 from signals import file_is_ready, file_joining_failed, file_upload_failed
 
@@ -135,7 +135,7 @@ class FlowFile(models.Model):
             super(FlowFile, self).save()
 
             # send ready signal
-            if self.join_in_background:
+            if self.join_in_background or FLOWJS_ALWAYS_SEND_SIGNALS:
                 file_is_ready.send(self)
 
             if FLOWJS_AUTO_DELETE_CHUNKS:
@@ -145,7 +145,7 @@ class FlowFile(models.Model):
             super(FlowFile, self).save()
 
             # send error signal
-            if self.join_in_background:
+            if self.join_in_background or FLOWJS_ALWAYS_SEND_SIGNALS:
                 file_joining_failed.send(self)
 
     def delete_chunks(self):
