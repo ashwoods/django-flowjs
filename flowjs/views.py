@@ -72,7 +72,7 @@ class UploadMixin(object):
             'file': form.cleaned_data['file'],
         })
 
-        if not created:
+        if not created and hasattr(form, 'file'):
             chunk.file = form.file
             chunk.size = form.size
             chunk.save()
@@ -89,7 +89,7 @@ class UploadView(UploadMixin, View):
     def get_variables(self, request):
         # get flow variables
         self.flowChunkNumber = int(request.REQUEST.get('flowChunkNumber'))
-        self.flowChunckSize = int(request.REQUEST.get('flowChunkSize'))
+        self.flowChunkSize = int(request.REQUEST.get('flowChunkSize'))
         self.flowCurrentChunkSize = int(request.REQUEST.get('flowCurrentChunkSize'))
         self.flowTotalSize = int(request.REQUEST.get('flowTotalSize'))
         self.flowIdentifier = request.REQUEST.get('flowIdentifier')
@@ -106,7 +106,7 @@ class UploadViewSet(UploadMixin, GenericViewSet):
     def get_variables(self, request):
         # get flow variables
         self.flowChunkNumber = int(request.data.get('flowChunkNumber', 0))
-        self.flowChunckSize = int(request.data.get('flowChunkSize', 0))
+        self.flowChunkSize = int(request.data.get('flowChunkSize', 0))
         self.flowCurrentChunkSize = int(request.data.get('flowCurrentChunkSize', 0))
         self.flowTotalSize = int(request.data.get('flowTotalSize', 0))
         self.flowIdentifier = request.data.get('flowIdentifier', None)
