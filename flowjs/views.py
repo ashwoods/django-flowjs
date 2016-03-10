@@ -75,7 +75,9 @@ class UploadMixin(object):
         if not created and hasattr(form, 'file'):
             chunk.file = form.file
             chunk.size = form.size
-            chunk.save()
+
+        # save chunk every time to update parent
+        chunk.save()
 
     def return_response(self, msg, error=False):
         return http.HttpResponse(msg)
