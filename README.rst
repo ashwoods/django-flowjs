@@ -5,23 +5,23 @@ This is an app for your Django project to enable large uploads using flow.js to 
 client side and send chunks that are re-assembled server side.
 
 
-. image:: https://img.shields.io/pypi/v/django-queued-storage.svg
+.. image:: https://img.shields.io/pypi/v/django-flowjs.svg
    :alt: PyPi page
-   :target: https://pypi.python.org/pypi/django-queued-storage
+   :target: https://pypi.python.org/pypi/django-flowjs
 
-.. image:: https://img.shields.io/travis/jazzband/django-queued-storage.svg
+.. image:: https://img.shields.io/travis/jazzband/django-flowjs.svg
     :alt: Travis CI Status
-    :target: https://travis-ci.org/jazzband/django-queued-storage
+    :target: https://travis-ci.org/jazzband/django-flowjs
 
-.. image:: https://img.shields.io/coveralls/jazzband/django-queued-storage/master.svg
+.. image:: https://img.shields.io/coveralls/jazzband/django-flowjs/master.svg
    :alt: Coverage status
-   :target: https://coveralls.io/r/jazzband/django-queued-storage
+   :target: https://coveralls.io/r/jazzband/django-flowjs
 
-.. image:: https://readthedocs.org/projects/django-queued-storage/badge/?version=latest&style=flat
+.. image:: https://readthedocs.org/projects/django-flowjs/badge/?version=latest&style=flat
    :alt: ReadTheDocs
-   :target: http://django-queued-storage.readthedocs.org/en/latest/
+   :target: http://django-flowjs.readthedocs.org/en/latest/
 
-.. image:: https://img.shields.io/pypi/l/django-queued-storage.svg
+.. image:: https://img.shields.io/pypi/l/django-flowjs.svg
    :alt: License BSD
 
 .. image:: https://jazzband.co/static/img/badge.svg
