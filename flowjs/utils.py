@@ -1,14 +1,14 @@
 import os
 import datetime
 import mimetypes
-from settings import FLOWJS_PATH, FLOWJS_EXPIRATION_DAYS
+from django.conf import settings
 
 
 def chunk_upload_to(instance, filename):
     """
     Save chunk to the right path and filename based in is number
     """
-    return os.path.join(FLOWJS_PATH, instance.filename)
+    return os.path.join(settings.FLOWJS_PATH, instance.filename)
 
 
 def guess_mimetype(url):
@@ -44,5 +44,5 @@ def remove_expired_files():
     from models import FlowFile
     FlowFile.objects.filter(
         state__in=[FlowFile.STATE_UPLOADING, FlowFile.STATE_UPLOAD_ERROR],
-        updated__lte=datetime.datetime.date() - datetime.timedelta(days=FLOWJS_EXPIRATION_DAYS)
+        updated__lte=datetime.datetime.date() - datetime.timedelta(days=settings.FLOWJS_EXPIRATION_DAYS)
     ).delete()

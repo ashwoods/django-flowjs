@@ -1,22 +1,42 @@
-from django.conf import settings
+from django.conf import settings  # noqa
 
-# Media path where the files are saved
-FLOWJS_PATH = getattr(settings, "FLOWJS_PATH", 'flowjs/')
+from appconf import AppConf
 
-# Remove the upload files when the model is deleted
-FLOWJS_REMOVE_FILES_ON_DELETE = getattr(settings, "FLOWJS_REMOVE_FILES_ON_DELETE", True)
 
-# Remove temporary chunks after file have been upload and created
-FLOWJS_AUTO_DELETE_CHUNKS = getattr(settings, "FLOWJS_AUTO_DELETE_CHUNKS", True)
+class QueuedStorageConf(AppConf):
+    # Media path where the files are saved
+    PATH = 'flowjs/'
 
-# Time in days to remove non completed uploads
-FLOWJS_EXPIRATION_DAYS = getattr(settings, "FLOWJS_EXPIRATION_DAYS", 1)
+    # Remove the upload files when the model is deleted
+    REMOVE_FILES_ON_DELETE = True
 
-# When flowjs should join files in background. Options: 'none', 'media' (audio and video), 'all' (all files).
-FLOWJS_JOIN_CHUNKS_IN_BACKGROUND = getattr(settings, "FLOWJS_JOIN_CHUNKS_IN_BACKGROUND", 'none')
+    # Remove temporary chunks after file have been upload and created
+    AUTO_DELETE_CHUNKS = True
 
-# Check if FLOWJS should use Celery
-FLOWJS_WITH_CELERY = 'celery' in settings.INSTALLED_APPS
+    # Time in days to remove non completed uploads
+    EXPIRATION_DAYS = 1
 
-# always send signals e.g. even with foreground processing
-FLOWJS_ALWAYS_SEND_SIGNALS = getattr(settings, "FLOWJS_ALWAYS_SEND_SIGNALS", False)
+    # When flowjs should join files in background. Options: 'none', 'media' (audio and video), 'all' (all files).
+    JOIN_CHUNKS_IN_BACKGROUND = 'none'
+
+    # Check if FLOWJS should use Celery
+    WITH_CELERY = 'celery' in settings.INSTALLED_APPS
+
+    # always send signals e.g. even with foreground processing
+    ALWAYS_SEND_SIGNALS = False
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

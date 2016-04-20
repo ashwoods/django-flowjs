@@ -1,0 +1,6 @@
+flake8
+coverage
+SQLAlchemy
+anyjson
+pytest-django
+pytest-cov
