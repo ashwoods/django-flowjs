@@ -2,5 +2,8 @@ flake8
 coverage
 SQLAlchemy
 anyjson
+pytest
 pytest-django
 pytest-cov
+django-casper
+pytest-django-casperjs

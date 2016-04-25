@@ -44,5 +44,6 @@ Configuration
    django-celery_
 -  Add ``'django-flowjs'`` to your ``INSTALLED_APPS`` setting
 
+
 .. _django-celery: https://github.com/ask/django-celery
 .. _Celery:  http://celeryproject.org/

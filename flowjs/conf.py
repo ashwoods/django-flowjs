@@ -3,7 +3,7 @@ from django.conf import settings  # noqa
 from appconf import AppConf
 
 
-class QueuedStorageConf(AppConf):
+class FlowjsStorageConf(AppConf):
     # Media path where the files are saved
     PATH = 'flowjs/'
 

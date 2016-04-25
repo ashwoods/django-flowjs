@@ -5,10 +5,10 @@ from django.db.models.signals import pre_delete
 from django.dispatch.dispatcher import receiver
 from django.core.files.storage import default_storage
 from django.conf import settings
-#from settings import FLOWJS_PATH, FLOWJS_REMOVE_FILES_ON_DELETE, \
-#    FLOWJS_AUTO_DELETE_CHUNKS, FLOWJS_JOIN_CHUNKS_IN_BACKGROUND, FLOWJS_WITH_CELERY, FLOWJS_ALWAYS_SEND_SIGNALS
-from utils import chunk_upload_to, guess_filetype
-from signals import file_is_ready, file_joining_failed, file_upload_failed
+
+from .utils import chunk_upload_to, guess_filetype
+from .signals import file_is_ready, file_joining_failed, file_upload_failed
+from .conf import FlowjsStorageConf  # noqa
 
 
 class FlowFile(models.Model):
@@ -79,14 +79,14 @@ class FlowFile(models.Model):
         """
         Return the path of the file uploaded
         """
-        return os.path.join(FLOWJS_PATH, self.filename)
+        return os.path.join(settings.FLOWJS_PATH, self.filename)
 
     @property
     def url(self):
         """
         Return the path of the file uploaded
         """
-        return os.path.join(settings.MEDIA_URL, FLOWJS_PATH, self.filename)
+        return os.path.join(settings.MEDIA_URL, settings.FLOWJS_PATH, self.filename)
 
     def get_chunk_filename(self, number):
         """
@@ -101,8 +101,8 @@ class FlowFile(models.Model):
         """
         if not hasattr(self, '_join_in_background'):
             filetype = guess_filetype(self.original_filename)
-            self._join_in_background = FLOWJS_JOIN_CHUNKS_IN_BACKGROUND == 'all' \
-                or (FLOWJS_JOIN_CHUNKS_IN_BACKGROUND == 'media' and filetype in ['audio', 'video'])
+            self._join_in_background = settings.FLOWJS_JOIN_CHUNKS_IN_BACKGROUND == 'all' \
+                or (settings.FLOWJS_JOIN_CHUNKS_IN_BACKGROUND == 'media' and filetype in ['audio', 'video'])
         return self._join_in_background
 
     def join_chunks(self):
@@ -113,7 +113,7 @@ class FlowFile(models.Model):
             if self.join_in_background:
                 self.state = self.STATE_JOINING
                 super(FlowFile, self).save()
-                if FLOWJS_WITH_CELERY:
+                if settings.FLOWJS_WITH_CELERY:
                     from tasks import join_chunks_task
                     join_chunks_task.delay(self)
                 else:
@@ -135,21 +135,21 @@ class FlowFile(models.Model):
             super(FlowFile, self).save()
 
             # send ready signal
-            if self.join_in_background or FLOWJS_ALWAYS_SEND_SIGNALS:
+            if self.join_in_background or settings.FLOWJS_ALWAYS_SEND_SIGNALS:
                 file_is_ready.send(self)
 
-            if FLOWJS_AUTO_DELETE_CHUNKS:
+            if settings.FLOWJS_AUTO_DELETE_CHUNKS:
                 self.delete_chunks()
-        except Exception, e:
+        except Exception as e:
             self.state = self.STATE_JOINING_ERROR
             super(FlowFile, self).save()
 
             # send error signal
-            if self.join_in_background or FLOWJS_ALWAYS_SEND_SIGNALS:
+            if self.join_in_background or settings.FLOWJS_ALWAYS_SEND_SIGNALS:
                 file_joining_failed.send(self)
 
     def delete_chunks(self):
-        if FLOWJS_WITH_CELERY:
+        if settings.FLOWJS_WITH_CELERY:
             from tasks import delete_chunks_task
             delete_chunks_task.delay(self)
         else:
@@ -198,7 +198,7 @@ def flow_file_delete(sender, instance, **kwargs):
     """
     Remove files on delete if is activated in settings
     """
-    if FLOWJS_REMOVE_FILES_ON_DELETE:
+    if settings.FLOWJS_REMOVE_FILES_ON_DELETE:
         default_storage.delete(instance.path)
 
 
